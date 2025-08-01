@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+
+{% block title %}Ana Sayfa{% endblock %}
+
+{% block content %}
+
+<div class="container mt-4">
+     
+    <div class="alert alert-warning text-center">
+        <strong>Admin Modu Aktif!</strong> Kullanıcı işlemleri şu anda askıya alındı.
+    </div>
+    
+    <h1 class="text-center mb-4">Sipariş ve Stok Yönetimi</h1>
+    <p class="text-center text-muted">Müşteri, ürün ve sipariş işlemlerinizi kolayca yönetin.</p>
+    
+    <div class="row g-4 mt-5">
+        <!-- Bekleyen Siparişler Bölümü -->
+        <div class="col-lg-10 mx-auto">
+            <div class="card shadow-sm">
+                <div class="card-header bg-danger text-white d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0 text-center">Bekleyen Siparişler</h5>
+                    <form method="post" action="{% url 'toplu_siparis_onayla' %}" class="m-0">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-warning btn-sm px-3 py-2" 
+                                onclick="return confirm('Tüm siparişleri öncelik sırasına göre onaylamak istediğinizden emin misiniz?')">
+                            Tüm Siparişleri Onayla
+                        </button>
+                    </form>
+                </div>
+                <div class="card-body p-3">
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover align-middle text-center">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>Sipariş ID</th>
+                                    <th>Müşteri</th>
+                                    <th>Müşteri Türü</th>
+                                    <th>Ürün</th>
+                                    <th>Adet</th>
+                                    <th>Bekleme Süresi</th>
+                                    <th>Öncelik</th>
+                                    <th>İşlem</th>
+                                </tr>
+                            </thead>
+                            <tbody id="siparis-tablo">
+                                {% for siparis in siparisler %}
+                                <tr>
+                                    <td>{{ siparis.siparis_id }}</td>
+                                    <td>{{ siparis.musteri.ad }}</td>
+                                    <td>
+                                        <span class="badge 
+                                            {% if siparis.musteri.musteri_turu == 'Premium' %}
+                                                bg-primary text-white
+                                            {% else %}
+                                                bg-secondary text-dark
+                                            {% endif %}">
+                                            {{ siparis.musteri.musteri_turu }}
+                                        </span>
+                                    </td>
+                                    <td>{{ siparis.urun.ad }}</td>
+                                    <td>{{ siparis.adet }}</td>
+                                    <td>
+                                        <span class="badge bg-info text-dark">
+                                            {{ siparis.bekleme_suresi|floatformat:2 }} saniye
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-warning text-dark">
+                                            {{ siparis.oncelik_skoru|floatformat:2 }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex justify-content-center gap-2">
+                                            <form method="post" action="{% url 'siparis_isle' siparis.siparis_id 'onayla' %}">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-success btn-sm">Onayla</button>
+                                            </form>
+                                            <form method="post" action="{% url 'siparis_isle' siparis.siparis_id 'iptal' %}">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-danger btn-sm">İptal</button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="8" class="text-center text-muted">Bekleyen sipariş yok.</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    setInterval(function () {
+        fetch("{% url 'admin_siparis_listesi_partial' %}")
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById("siparis-tablo").innerHTML = data.html;
+            })
+            .catch(error => console.error("Sipariş listesi güncellenirken hata oluştu:", error));
+    }, 2000);
+</script>
+
+{% endblock %}

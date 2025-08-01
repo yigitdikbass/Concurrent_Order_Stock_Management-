@@ -1,0 +1,39 @@
+{% for siparis in siparisler %}
+<tr class="align-middle text-center">
+    <td>{{ siparis.siparis_id }}</td>
+    <td>{{ siparis.musteri.ad }}</td>
+    <td>
+        <span class="badge {% if siparis.musteri.musteri_turu == 'Premium' %}bg-primary text-white{% else %}bg-secondary text-dark{% endif %}">
+            {{ siparis.musteri.musteri_turu }}
+        </span>
+    </td>
+    <td>{{ siparis.urun.ad }}</td>
+    <td>{{ siparis.adet }}</td>
+    <td>
+        <span class="badge bg-info text-dark">
+            {{ siparis.bekleme_suresi|floatformat:2 }} saniye
+        </span>
+    </td>
+    <td>
+        <span class="badge bg-warning text-dark">
+            {{ siparis.oncelik_skoru|floatformat:2 }}
+        </span>
+    </td>
+    <td>
+        <div class="d-flex justify-content-center gap-2">
+            <form method="post" action="{% url 'siparis_isle' siparis.siparis_id 'onayla' %}" class="m-0">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-success btn-sm">Onayla</button>
+            </form>
+            <form method="post" action="{% url 'siparis_isle' siparis.siparis_id 'iptal' %}" class="m-0">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger btn-sm">İptal</button>
+            </form>
+        </div>
+    </td>
+</tr>
+{% empty %}
+<tr>
+    <td colspan="8" class="text-center text-muted">Bekleyen sipariş yok.</td>
+</tr>
+{% endfor %}

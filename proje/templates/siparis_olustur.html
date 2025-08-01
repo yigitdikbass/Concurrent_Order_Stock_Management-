@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block title %}Sipariş Oluştur{% endblock %}
+
+{% block content %}
+<h1>Sipariş Oluştur</h1>
+<form method="post" action="">
+    {% csrf_token %}
+    <div class="mb-3">
+        <label for="musteri_id" class="form-label">Müşteri</label>
+        <select name="musteri_id" id="musteri_id" class="form-control">
+            {% for musteri in musteriler %}
+            <option value="{{ musteri.id }}">{{ musteri.ad }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="mb-3">
+        <label for="urun_id" class="form-label">Ürün</label>
+        <select name="urun_id" id="urun_id" class="form-control">
+            {% for urun in urunler %}
+            <option value="{{ urun.id }}">{{ urun.ad }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="mb-3">
+        <label for="adet" class="form-label">Adet</label>
+        <input type="number" name="adet" id="adet" class="form-control" min="1" required>
+    </div>
+    <button type="submit" class="btn btn-primary">Sipariş Ver</button>
+</form>
+{% endblock %}
